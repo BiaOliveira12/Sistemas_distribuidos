@@ -23,6 +23,22 @@ function lerJSON() {
     req.send();
 
 }
+function excluir(id) {
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            objJSON = JSON.parse(this.responseText);
+            if (objJSON.resposta) {
+                alert(objJSON.resposta);
+                lerProdutos(); // Recarrega os produtos após a exclusão
+            }
+        }
+    };
+    req.open("POST", "servidor.php?excluir", true);
+    req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    req.send("id=" + id);  // Envia o id do produto para exclusão via POST
+}
+
 
 function lerProdutos() {
     var req = new XMLHttpRequest();
@@ -44,6 +60,7 @@ function lerProdutos() {
                     txt += '	<td>' + prod.id + '</td>';
                     txt += '	<td>' + prod.nome + '</td>';
                     txt += '	<td>' + prod.preco + '</td>';
+                    txt += '<td><button onclick="excluir(' + prod.id + ')">X</button></td>';
                     txt += '</tr> ';
                 });
                 txt += '</table> ';
@@ -55,5 +72,34 @@ function lerProdutos() {
     req.send();
 }
 
+function cadastrar() {
+    txtNome = document.getElementById("txtNome");
+    nome = txtNome.value;
+    if (nome == "") {
+        alert("O NOME deve ser preenchido!");
+    } else {
+        txtPreco = document.getElementById("txtPreco");
+        preco = txtPreco.value;
+        preco = preco.replace(",", ".")
+        if (preco == "") preco = 0.0;
 
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                objJSON = JSON.parse(this.responseText);
+                if (objJSON.resposta) {
+                    alert(objJSON.resposta);
+                } else {
+                    alert("ID gerado: " + objJSON.id);
+                    lerProdutos();
+                    txtNome.value = "";
+                    txtPreco.value = "";
+                }
+            }
+        }
+        req.open("POST", "servidor.php?inserir", true);
+        req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        req.send("name=" + nome + "&price=" + preco);
+    }
+}
 
