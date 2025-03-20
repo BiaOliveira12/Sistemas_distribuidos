@@ -1,1 +1,1 @@
-Projetos Sistemas Distribuidos#Sistemas_distribuidos
+Projetos criados durante as aulas de Sistemas Distribuidos
