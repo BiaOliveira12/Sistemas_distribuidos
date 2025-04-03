@@ -27,5 +27,4 @@ function lerXML(){
     }
     req.open( "GET" , "dados.xml" , true );
     req.send();
-
 }
