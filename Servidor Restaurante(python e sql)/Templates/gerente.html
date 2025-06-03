@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gerente - Relatórios</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #faf3e0;
+            color: #333;
+        }
+        h1 {
+            margin-bottom: 1rem;
+            color: #7B2D26;
+        }
+        h2 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        label {
+            display: block;
+            margin-top: 1rem;
+        }
+        input, select, button {
+            padding: 0.5rem;
+            max-width: 300px;
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 0.25rem;
+        }
+        button {
+            background-color: #7B2D26 !important;
+            color: white !important;
+            cursor: pointer;
+            border: none;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: #556b2f !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: transparent; /* remove fundo do bootstrap */
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            background-color: transparent; /* remove fundo do bootstrap */
+            color: #333;
+        }
+        th {
+            background: #c9a356;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .mensagem-erro {
+            color: red;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+        .mensagem-sucesso {
+            color: green;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Relatórios - Gerente</h1>
+
+    <section>
+        <h2>Consultar Relatório</h2>
+        <label for="tipo">Tipo de Relatório:</label>
+        <select id="tipo" class="form-select" style="max-width: 300px;">
+            <option value="periodo">Por Período</option>
+            <option value="mesa">Por Mesa</option>
+            <option value="garcom">Por Garçom</option>
+        </select>
+
+        <div id="filtros-periodo" class="mt-3">
+            <label for="inicio">Data Início:</label>
+            <input type="date" id="inicio" class="form-control" style="max-width: 300px;" />
+            <label for="fim" class="mt-2">Data Fim:</label>
+            <input type="date" id="fim" class="form-control" style="max-width: 300px;" />
+        </div>
+
+        <div id="filtros-mesa" class="mt-3" style="display:none;">
+            <label for="mesa">Número da Mesa:</label>
+            <input type="number" id="mesa" class="form-control" style="max-width: 300px;" />
+        </div>
+
+        <div id="filtros-garcom" class="mt-3" style="display:none;">
+            <label for="garcom">Nome do Garçom:</label>
+            <input type="text" id="garcom" class="form-control" style="max-width: 300px;" />
+        </div>
+
+        <button onclick="consultarRelatorio()" class="btn mt-3" style="max-width: 300px;">
+            Consultar
+        </button>
+
+        <div id="resultado" class="mt-4"></div>
+    </section>
+</div>
+
+<script>
+    console.log('Script de relatórios do gerente carregado.');
+
+    const tipoSelect = document.getElementById('tipo');
+    const filtrosPeriodo = document.getElementById('filtros-periodo');
+    const filtrosMesa = document.getElementById('filtros-mesa');
+    const filtrosGarcom = document.getElementById('filtros-garcom');
+    const resultadoDiv = document.getElementById('resultado');
+
+    tipoSelect.addEventListener('change', () => {
+        console.log('Tipo de relatório alterado para:', tipoSelect.value);
+        filtrosPeriodo.style.display = 'none';
+        filtrosMesa.style.display = 'none';
+        filtrosGarcom.style.display = 'none';
+
+        if (tipoSelect.value === 'periodo') filtrosPeriodo.style.display = 'block';
+        if (tipoSelect.value === 'mesa') filtrosMesa.style.display = 'block';
+        if (tipoSelect.value === 'garcom') filtrosGarcom.style.display = 'block';
+
+        resultadoDiv.innerHTML = '';
+        if (tipoSelect.value !== 'periodo') {
+            document.getElementById('inicio').value = '';
+            document.getElementById('fim').value = '';
+        }
+        if (tipoSelect.value !== 'mesa') {
+            document.getElementById('mesa').value = '';
+        }
+        if (tipoSelect.value !== 'garcom') {
+            document.getElementById('garcom').value = '';
+        }
+    });
+
+    async function consultarRelatorio() {
+        console.log('Função consultarRelatorio() chamada.');
+        let url = '';
+        const tipo = tipoSelect.value;
+
+        if (tipo === 'periodo') {
+            const inicio = document.getElementById('inicio').value;
+            const fim = document.getElementById('fim').value;
+            console.log('Relatório por período - Início:', inicio, 'Fim:', fim);
+            if (!inicio || !fim) {
+                alert('Preencha as datas corretamente.');
+                return;
+            }
+            url = `/relatorio/periodo?inicio=${inicio}&fim=${fim}`;
+        } else if (tipo === 'mesa') {
+            const mesa = document.getElementById('mesa').value;
+            console.log('Relatório por mesa - Mesa:', mesa);
+            if (!mesa) {
+                alert('Informe o número da mesa.');
+                return;
+            }
+            url = `/relatorio/mesa/${mesa}`;
+        } else if (tipo === 'garcom') {
+            const garcom = document.getElementById('garcom').value;
+            console.log('Relatório por garçom - Garçom:', garcom);
+            if (!garcom) {
+                alert('Informe o nome do garçom.');
+                return;
+            }
+            url = `/relatorio/garcom/${garcom}`;
+        }
+
+        resultadoDiv.innerHTML = 'Carregando...';
+        console.log('URL da requisição:', url);
+
+        try {
+            const res = await fetch(url);
+            console.log('Resposta da requisição:', res);
+            const data = await res.json();
+            console.log('Dados recebidos:', data);
+
+            if (res.ok && Array.isArray(data) && data.length > 0) {
+                exibirTabela(data);
+            } else if (res.ok && data.length === 0) {
+                resultadoDiv.innerHTML = '<p class="mensagem-erro">Nenhum resultado encontrado.</p>';
+            } else {
+                resultadoDiv.innerHTML = `<p class="mensagem-erro">Erro: ${JSON.stringify(data)}</p>`;
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            resultadoDiv.innerHTML = '<p class="mensagem-erro">Erro de conexão.</p>';
+        }
+    }
+
+    function exibirTabela(dados) {
+        console.log('Função exibirTabela() chamada com dados:', dados);
+        let tabelaHTML = '<div class="table-responsive"><table class="table"><thead><tr>';
+
+        if (dados.length > 0) {
+            Object.keys(dados[0]).forEach(chave => {
+                tabelaHTML += `<th>${chave}</th>`;
+            });
+        } else {
+            resultadoDiv.innerHTML = '<p class="mensagem-erro">Nenhum dado para exibir na tabela.</p>';
+            return;
+        }
+
+        tabelaHTML += '</tr></thead><tbody>';
+
+        dados.forEach(item => {
+            tabelaHTML += '<tr>';
+            Object.values(item).forEach(valor => {
+                tabelaHTML += `<td>${valor}</td>`;
+            });
+            tabelaHTML += '</tr>';
+        });
+
+        tabelaHTML += '</tbody></table></div>';
+
+        resultadoDiv.innerHTML = tabelaHTML;
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
