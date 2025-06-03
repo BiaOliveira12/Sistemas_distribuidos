@@ -12,7 +12,7 @@ DB_PATH = 'reservas.db'
 
 def conectar():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # permite acessar colunas por nome (como dicionário)
+    conn.row_factory = sqlite3.Row  
     criar_tabela(conn)
     return conn
 
